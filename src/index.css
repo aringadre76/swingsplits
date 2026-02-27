@@ -1,0 +1,43 @@
+@import "../styles/globals.css";
+
+@layer base {
+  :root {
+    @apply font-sans;
+  }
+
+  body {
+    @apply grid place-items-center min-w-[320px] min-h-screen relative m-0 bg-background text-foreground;
+  }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 1;
+  background:
+    radial-gradient(900px circle at 15% 10%, color-mix(in oklab, var(--color-ring) 22%, transparent), transparent 60%),
+    radial-gradient(800px circle at 85% 5%, color-mix(in oklab, var(--color-chart-2) 18%, transparent), transparent 55%),
+    radial-gradient(950px circle at 50% 115%, color-mix(in oklab, var(--color-chart-5) 14%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in oklab, var(--color-foreground) 4%, transparent), transparent 35%, color-mix(in oklab, black 25%, transparent));
+  background-attachment: fixed;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion) {
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+  }
+}

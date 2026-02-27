@@ -1,0 +1,48 @@
+---
+description: Product and UI standards for the baseball bat speed analytics web app
+alwaysApply: true
+---
+
+# Baseball bat speed analytics app
+
+## Purpose
+
+The project is a web based baseball analytics tool that visualizes MLB hitter bat speed and swing length, broken down by count situation, using Statcast pitch level data.
+
+## Data assumptions
+
+- Each row in the input dataset represents a single pitch level event.
+- Key columns available in the dataset include `player_name`, `bat_speed`, `swing_length`, `balls`, `strikes`, `game_year`, and `events`.
+
+## Core functionality
+
+- The app must support searching for any hitter by `player_name`.
+- For a selected hitter, the app must aggregate bat speed and swing length by count situation using the following buckets:
+  - All Counts: all swings regardless of count.
+  - Early Count: 0-0, 1-0, 0-1.
+  - Ahead: 2-0, 3-0, 3-1, 2-1.
+  - Behind: 0-2, 1-2.
+  - Two Strikes: any count with 2 strikes.
+- The app must allow filtering by season (`game_year`) and also support viewing career averages across all available seasons.
+
+## Metrics and deltas
+
+- For each count bucket, compute at minimum:
+  - Average bat speed.
+  - Average swing length.
+  - Sample size as number of swings used in the aggregation.
+- The main table must include a delta column for both bat speed and swing length that compares each count bucket to the hitter's overall average across all counts:
+  - Use green styling to indicate values meaningfully higher than the overall average.
+  - Use red styling to indicate values meaningfully lower than the overall average.
+- Thresholds for meaningful difference:
+  - Bat speed: 1 mph difference from overall average.
+  - Swing length: 0.2 ft difference from overall average.
+
+## UI and design guidelines
+
+- Use a clean, dark themed UI that feels visually similar to Baseball Savant.
+- The primary view should be a table with count situations as rows and bat speed, swing length, deltas, and sample size as columns.
+- Include the sample size per bucket in the table so that small sample situations are clearly visible to the user.
+- Ensure interactions like hitter search, season filter, and count breakdown updates feel responsive and intuitive.
+- The layout and components must be mobile friendly and readable on smaller screens.
+
