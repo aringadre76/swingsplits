@@ -98,7 +98,7 @@ async function processFile(filePath: string, players: PlayerMap) {
       if (!name) return;
 
       const year = Number(row.game_year || row.game_date?.slice(0, 4));
-      if (!year || year < 2023 || year > 2025) return;
+      if (!year || year < 2023 || year > 2026) return;
 
       const batSpeed =
         row.bat_speed === "" || row.bat_speed == null ? null : Number(row.bat_speed);
@@ -234,7 +234,7 @@ async function main() {
       const match = name.match(pattern);
       if (match) {
         const year = Number(match[1]);
-        if (year >= 2023 && year <= 2025) {
+        if (year >= 2023 && year <= 2026) {
           seasonYears.add(year);
         }
       }

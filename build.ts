@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import plugin from "bun-plugin-tailwind";
 import { existsSync } from "fs";
-import { rm } from "fs/promises";
+import { cp, rm } from "fs/promises";
 import path from "path";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -147,3 +147,10 @@ console.table(outputTable);
 const buildTime = (end - start).toFixed(2);
 
 console.log(`\nBuild completed in ${buildTime}ms\n`);
+
+// Copy static data directory (if present) into the output so /data/*.json are served in production.
+const dataDir = path.join(process.cwd(), "data");
+if (existsSync(dataDir)) {
+  const outDataDir = path.join(outdir as string, "data");
+  await cp(dataDir, outDataDir, { recursive: true });
+}

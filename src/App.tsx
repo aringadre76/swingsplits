@@ -19,6 +19,14 @@ const BAT_SPEED_DELTA = 1;
 const SWING_LENGTH_DELTA = 0.2;
 const MIN_SEASON_YEAR = 2023;
 const SEARCH_DEBOUNCE_MS = 200;
+const MIN_INSIGHT_SWINGS = 100;
+
+const BUCKET_SHORT_LABELS: Record<Exclude<HitterBucketKey, "all">, string> = {
+  early: "Early",
+  ahead: "Ahead",
+  behind: "Behind",
+  two_strikes: "Two Strikes"
+};
 
 function classifyDelta(value: number | null, baseline: number | null, threshold: number) {
   if (value === null || baseline === null) return { cls: "text-muted-foreground", text: "–" };
@@ -36,12 +44,77 @@ function formatAvg(value: number | null, digits = 1) {
   return value.toFixed(digits);
 }
 
+function formatSigned(value: number, digits = 1) {
+  const sign = value > 0 ? "+" : value < 0 ? "−" : "";
+  return `${sign}${Math.abs(value).toFixed(digits)}`;
+}
+
 function sortNames(names: string[]) {
   return [...names].sort((a, b) => a.localeCompare(b));
 }
 
 function normalizeName(value: string) {
   return value.toLowerCase().replace(/,/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function formatPlayerDisplayName(raw: string) {
+  const value = raw.trim();
+  if (!value) return value;
+
+  const suffixMap: Record<string, string> = {
+    jr: "Jr.",
+    "jr.": "Jr.",
+    sr: "Sr.",
+    "sr.": "Sr."
+  };
+
+  const roman = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$/i;
+
+  const capSegment = (seg: string) => {
+    if (!seg) return seg;
+    return seg[0]!.toUpperCase() + seg.slice(1).toLowerCase();
+  };
+
+  const capWord = (word: string) => {
+    const w = word.trim();
+    if (!w) return w;
+
+    const lower = w.toLowerCase();
+    if (suffixMap[lower]) return suffixMap[lower]!;
+    if (roman.test(w)) return w.toUpperCase();
+
+    // preserve punctuation but title-case the letter segments
+    const hyphenParts = w.split("-").map(part => {
+      const aposParts = part.split("'").map(p => {
+        const pLower = p.toLowerCase();
+        if (pLower.startsWith("mc") && p.length > 2) {
+          return "Mc" + capSegment(p.slice(2));
+        }
+        return capSegment(p);
+      });
+      return aposParts.join("'");
+    });
+    return hyphenParts.join("-");
+  };
+
+  const toTitle = (s: string) =>
+    s
+      .split(/\s+/g)
+      .filter(Boolean)
+      .map(capWord)
+      .join(" ");
+
+  if (value.includes(",")) {
+    const [lastRaw, ...rest] = value.split(",");
+    const firstRaw = rest.join(",").trim();
+    const last = toTitle(lastRaw ?? "");
+    const first = toTitle(firstRaw);
+    if (!first) return last;
+    if (!last) return first;
+    return `${first} ${last}`;
+  }
+
+  return toTitle(value);
 }
 
 function getSeasonInitial(meta: AggregatesMeta | null): string {
@@ -70,6 +143,7 @@ export function App() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [season, setSeason] = useState<string>("career");
+  const [autoSeasonHitter, setAutoSeasonHitter] = useState<string | null>(null);
 
   useEffect(() => {
     if (search.trim() === "") {
@@ -147,7 +221,7 @@ export function App() {
     const chosen = exact ?? first ?? null;
     setSelectedName(chosen);
 
-    if (chosen) {
+    if (chosen && chosen !== autoSeasonHitter) {
       const hitter = aggregates[chosen];
       const hitterSeasons = Object.keys(hitter.seasons).filter(
         key => key !== "career" && Number(key) >= MIN_SEASON_YEAR
@@ -156,17 +230,19 @@ export function App() {
         const latest = hitterSeasons.sort((a, b) => Number(a) - Number(b))[
           hitterSeasons.length - 1
         ];
-        if (latest && season !== latest) setSeason(latest);
+        if (latest) setSeason(latest);
       } else {
         setSeason("career");
       }
+      setAutoSeasonHitter(chosen);
     }
-  }, [aggregates, allNames, debouncedSearch, filteredNames, season]);
+  }, [aggregates, allNames, autoSeasonHitter, debouncedSearch, filteredNames]);
 
   const selectedHitter = selectedName && aggregates ? aggregates[selectedName] : null;
 
   const seasonKey = season === "career" ? "career" : season;
   const seasonData = selectedHitter ? selectedHitter.seasons[seasonKey] ?? null : null;
+  const careerData = selectedHitter ? selectedHitter.seasons.career ?? null : null;
 
   useEffect(() => {
     if (season === "career") return;
@@ -211,13 +287,112 @@ export function App() {
     );
   }, [seasonData]);
 
+  const approachInsight = useMemo(() => {
+    if (!seasonData) return null;
+
+    const baselineBat = seasonData.buckets.all.batSpeed.avg;
+    const baselineLen = seasonData.buckets.all.swingLength.avg;
+
+    type MetricDiff = { key: Exclude<HitterBucketKey, "all">; diff: number };
+
+    const batDiffs: MetricDiff[] = [];
+    const lenDiffs: MetricDiff[] = [];
+
+    (["early", "ahead", "behind", "two_strikes"] as const).forEach(key => {
+      const bucket = seasonData.buckets[key];
+
+      if (
+        baselineBat != null &&
+        bucket.batSpeed.avg != null &&
+        bucket.batSpeed.swings >= MIN_INSIGHT_SWINGS
+      ) {
+        batDiffs.push({ key, diff: bucket.batSpeed.avg - baselineBat });
+      }
+
+      if (
+        baselineLen != null &&
+        bucket.swingLength.avg != null &&
+        bucket.swingLength.swings >= MIN_INSIGHT_SWINGS
+      ) {
+        lenDiffs.push({ key, diff: bucket.swingLength.avg - baselineLen });
+      }
+    });
+
+    const mkClause = (label: string, unit: string, diffs: MetricDiff[]) => {
+      if (diffs.length === 0) return null;
+      let max = diffs[0]!;
+      let min = diffs[0]!;
+      for (const d of diffs) {
+        if (d.diff > max.diff) max = d;
+        if (d.diff < min.diff) min = d;
+      }
+      const maxBucket = BUCKET_SHORT_LABELS[max.key];
+      const minBucket = BUCKET_SHORT_LABELS[min.key];
+
+      if (diffs.length === 1 || max.key === min.key) {
+        return `${label} leans ${max.diff >= 0 ? "higher" : "lower"} in ${maxBucket} (${formatSigned(
+          max.diff
+        )} ${unit}) vs all counts`;
+      }
+
+      return `${label} peaks in ${maxBucket} (${formatSigned(max.diff)} ${unit}) and dips in ${minBucket} (${formatSigned(
+        min.diff
+      )} ${unit}) vs all counts`;
+    };
+
+    const batClause = mkClause("Bat speed", "mph", batDiffs);
+    const lenClause = mkClause("Swing length", "ft", lenDiffs);
+
+    if (!batClause && !lenClause) {
+      return `Approach: Not enough swings (≥${MIN_INSIGHT_SWINGS}) for stable bucket insights.`;
+    }
+
+    if (batClause && lenClause) return `Approach: ${batClause}. ${lenClause}.`;
+    return `Approach: ${batClause ?? lenClause}.`;
+  }, [seasonData]);
+
+  const seasonVsCareerInsight = useMemo(() => {
+    if (season === "career") return null;
+    if (!seasonData || !careerData) return null;
+
+    const swingsAllBat = seasonData.buckets.all.batSpeed.swings;
+    const swingsAllLen = seasonData.buckets.all.swingLength.swings;
+    const swingsAll = Math.max(swingsAllBat ?? 0, swingsAllLen ?? 0);
+    if (swingsAll < MIN_INSIGHT_SWINGS) {
+      return `Season vs career (All Counts): not enough swings in this season (fewer than ${MIN_INSIGHT_SWINGS}) for a stable comparison.`;
+    }
+
+    const seasonBat = seasonData.buckets.all.batSpeed.avg;
+    const careerBat = careerData.buckets.all.batSpeed.avg;
+    const seasonLen = seasonData.buckets.all.swingLength.avg;
+    const careerLen = careerData.buckets.all.swingLength.avg;
+
+    const batDiff =
+      seasonBat != null && careerBat != null ? seasonBat - careerBat : null;
+    const lenDiff =
+      seasonLen != null && careerLen != null ? seasonLen - careerLen : null;
+
+    if (batDiff == null && lenDiff == null) return null;
+
+    const parts: string[] = [];
+    if (batDiff != null) parts.push(`${formatSigned(batDiff)} mph bat speed`);
+    if (lenDiff != null) parts.push(`${formatSigned(lenDiff)} ft swing length`);
+
+    const directionWord = (value: number) => (Math.abs(value) < 0.05 ? "about the same" : value > 0 ? "up" : "down");
+    const batNarr = batDiff != null ? `bat speed ${directionWord(batDiff)}` : null;
+    const lenNarr = lenDiff != null ? `swing length ${directionWord(lenDiff)}` : null;
+    const narr = batNarr && lenNarr ? `${batNarr}, ${lenNarr}` : batNarr ?? lenNarr;
+
+    return `Season vs career (All Counts): ${parts.join(", ")} (${narr}).`;
+  }, [careerData, season, seasonData]);
+
   const careerLabel = meta?.careerLabel ?? "Career";
   const searchTrimmed = debouncedSearch.trim();
   const noMatch = Boolean(aggregates && searchTrimmed && filteredNames.length === 0);
 
   return (
-    <div className="relative z-10 w-full px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+    <div className="relative z-10 flex w-full justify-center px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex w-full max-w-[880px] flex-col gap-4">
         <header className="flex flex-col gap-1">
           <h1 className="text-xl font-semibold tracking-wide sm:text-2xl">Swingsplits</h1>
           <p className="text-sm text-muted-foreground">
@@ -263,6 +438,7 @@ export function App() {
                     } else {
                       setSeason("career");
                     }
+                    setAutoSeasonHitter(chosen);
                   }
                 }
               }}
@@ -297,15 +473,21 @@ export function App() {
           </div>
         </section>
 
-        <Card className="bg-card/90 border-border/80 shadow-xl backdrop-blur">
+        <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur flex flex-col h-[460px]">
           <CardHeader className="flex flex-col gap-1 border-b border-border/80 sm:flex-row sm:items-baseline sm:justify-between">
             <div>
               <CardTitle className="text-base font-medium">
-                {selectedName ?? "No hitter selected"}
+                {selectedName ? formatPlayerDisplayName(selectedName) : "No hitter selected"}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
                 {season === "career" ? careerLabel : `Season ${season}`}
               </CardDescription>
+              {selectedName && seasonData && (
+                <div className="mt-1 flex flex-col gap-0.5 text-xs text-muted-foreground">
+                  {approachInsight && <div>{approachInsight}</div>}
+                  {seasonVsCareerInsight && <div>{seasonVsCareerInsight}</div>}
+                </div>
+              )}
             </div>
             <div className="text-xs text-muted-foreground">
               {hasAnySwings === 0 && selectedName && seasonData
@@ -313,7 +495,7 @@ export function App() {
                 : "Swings with both bat speed and swing length available"}
             </div>
           </CardHeader>
-          <CardContent className="px-0">
+          <CardContent className="px-0 flex-1 overflow-hidden">
             {loading ? (
               <div className="px-6 py-8 text-sm text-muted-foreground">
                 Loading Statcast aggregates...
@@ -341,7 +523,7 @@ export function App() {
                     No bat speed / swing length tracked for this hitter in Season {season}. Try a different season or hitter.
                   </div>
                 )}
-              <div className="w-full overflow-x-auto">
+              <div className="w-full h-full overflow-x-auto overflow-y-auto">
                 <table className="min-w-full text-left text-xs sm:text-sm">
                   <thead className="border-b border-border/80 bg-background/40">
                     <tr>

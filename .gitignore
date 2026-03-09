@@ -51,3 +51,4 @@ package-lock.json
 # scratch files
 download.txt
 docs/plans/
+.vercel

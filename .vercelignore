@@ -1,0 +1,18 @@
+node_modules
+.git
+.gitignore
+.DS_Store
+
+# Large local tooling / cache
+.cursor/
+.playwright-mcp/
+logs/
+coverage/
+
+# Raw Statcast CSVs are huge; not needed at runtime
+statcast_data/
+
+# Local scratch / docs
+download.txt
+docs/
+
