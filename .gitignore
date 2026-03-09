@@ -43,7 +43,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # generated data
 statcast_data/
-data/*.json
 
 # package managers
 package-lock.json
