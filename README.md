@@ -2,6 +2,8 @@
 
 Bat speed and swing length splits by count situation, powered by Statcast data.
 
+Live site: [swingsplits.vercel.app](http://swingsplits.vercel.app/)
+
 ## Prerequisites
 
 - Bun installed locally

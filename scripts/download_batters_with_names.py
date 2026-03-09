@@ -5,7 +5,7 @@ import os
 os.makedirs("statcast_data", exist_ok=True)
 cache.enable()
 
-YEARS = [2023, 2024, 2025, 2026]
+YEARS = [2023, 2024, 2025]
 
 for year in YEARS:
     outpath = f"statcast_data/hitters_{year}.csv"
@@ -13,11 +13,7 @@ for year in YEARS:
         print(f"hitters_{year}.csv already exists, skipping.")
         continue
     print(f"Downloading Statcast {year}...")
-    # 2026: spring training only (through early April)
-    if year == 2026:
-        start_dt, end_dt = "2026-02-15", "2026-04-01"
-    else:
-        start_dt, end_dt = f"{year}-03-01", f"{year}-11-01"
+    start_dt, end_dt = f"{year}-03-01", f"{year}-11-01"
     df = statcast(start_dt=start_dt, end_dt=end_dt)
     if df is None or df.empty:
         print(f"  No data for {year}, skipping.")
