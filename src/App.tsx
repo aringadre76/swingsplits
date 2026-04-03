@@ -173,6 +173,78 @@ function toAbsKey(raw: string): string {
     return trimmed.toLowerCase();
 }
 
+// InsightsView component for displaying ABS analysis findings
+function InsightsView() {
+    return (
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">
+                        ABS Challenge System Insights
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                    <p>
+                        <strong className="text-foreground">The "Loopy" Hitter Is the Best ABS Challenger</strong> — below-median bat speed, above-median swing length. They dominate with 97% overturn rate and +0.85 avg tvse.
+                    </p>
+                    <p>
+                        <strong className="text-foreground">Decelerating in Two-Strike Counts Predicts Success</strong> — it's not how much you shorten, but how much you slow your bat speed. Decelerators: +0.91 tvse, 96% overturn.
+                    </p>
+                    <p>
+                        <strong className="text-foreground">Longer Swing = Better ABS Outcomes</strong> — Pearson r between swing length and overturn rate = +0.20. Longest hitters win at 96% vs shortest at 82%.
+                    </p>
+                    <p>
+                        <strong className="text-foreground">Career Habits Are Irrelevant</strong> — Pearson r (career ts_len_delta vs tvse) = +0.009. ABS skill is learned in real-time.
+                    </p>
+                </CardContent>
+            </Card>
+            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">Top ABS Performers</CardTitle>
+                </CardHeader>
+                <CardContent className="px-0">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full text-left text-xs">
+                            <thead className="border-b border-border/80 bg-background/40">
+                                <tr>
+                                    <th className="px-4 py-2 font-medium">Player</th>
+                                    <th className="px-4 py-2 font-medium">tvse</th>
+                                    <th className="px-4 py-2 font-medium">Overturn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2 font-medium">Ivan Herrera</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+2.82</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2 font-medium">Kerry Carpenter</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+2.80</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2 font-medium">Coby Mayo</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+2.63</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2 font-medium">Aaron Judge</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+2.46</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td>
+                                </tr>
+                                <tr><td className="px-4 py-2 font-medium">Tyler Stephenson</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+2.38</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
 export function App() {
     useEffect(() => {
         document.documentElement.classList.add("dark");
@@ -196,6 +268,7 @@ export function App() {
     const [leagueContext, setLeagueContext] = useState<LeagueContext | null>(
         null,
     );
+    const [view, setView] = useState<"hitters" | "insights">("hitters");
 
     useEffect(() => {
         if (search.trim() === "") {
@@ -617,6 +690,32 @@ export function App() {
                         Statcast
                     </p>
                 </header>
+
+                {/* View Tabs */}
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setView("hitters")}
+                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            view === "hitters"
+                                ? "bg-background text-foreground shadow-sm border border-border"
+                                : "text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                        Hitters
+                    </button>
+                    <button
+                        onClick={() => setView("insights")}
+                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            view === "insights"
+                                ? "bg-background text-foreground shadow-sm border border-border"
+                                : "text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                        Insights
+                    </button>
+                </div>
+
+                {view === "insights" ? <InsightsView /> : null}
 
                 <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                     <div className="flex-1 min-w-[180px]">
