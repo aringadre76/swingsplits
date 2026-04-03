@@ -612,7 +612,7 @@ export function App() {
                     <h1 className="text-xl font-semibold tracking-wide sm:text-2xl">
                         Swingsplits
                     </h1>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                         Bat speed and swing length splits by count, powered by
                         Statcast
                     </p>
@@ -705,12 +705,12 @@ export function App() {
                 <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur flex flex-col h-[460px]">
                     <CardHeader className="flex flex-col gap-1 border-b border-border/80 sm:flex-row sm:items-baseline sm:justify-between">
                         <div>
-                            <CardTitle className="text-base font-medium">
+                            <CardTitle className="text-lg font-medium">
                                 {selectedName
                                     ? formatPlayerDisplayName(selectedName)
                                     : "No hitter selected"}
                             </CardTitle>
-                            <CardDescription className="text-xs sm:text-sm">
+                            <CardDescription className="text-sm sm:text-base">
                                 {season === "career"
                                     ? careerLabel
                                     : `Season ${season}`}
@@ -744,7 +744,7 @@ export function App() {
                     </CardHeader>
                     <CardContent className="px-0 flex-1 overflow-hidden">
                         {loading ? (
-                            <div className="px-6 py-8 text-sm text-muted-foreground">
+                            <div className="px-6 py-8 text-base text-muted-foreground">
                                 Loading Statcast aggregates...
                             </div>
                         ) : loadError ? (
@@ -752,32 +752,32 @@ export function App() {
                                 {loadError}
                             </div>
                         ) : !aggregates ? (
-                            <div className="px-6 py-8 text-sm text-muted-foreground">
+                            <div className="px-6 py-8 text-base text-muted-foreground">
                                 Aggregated data file not found. Generate it by
                                 running the Statcast precompute script before
                                 starting the app.
                             </div>
                         ) : noMatch ? (
-                            <div className="px-6 py-8 text-sm text-muted-foreground">
+                            <div className="px-6 py-8 text-base text-muted-foreground">
                                 No hitter found matching &quot;{searchTrimmed}
                                 &quot; in available Statcast data.
                             </div>
                         ) : !selectedName || !seasonData ? (
-                            <div className="px-6 py-8 text-sm text-muted-foreground">
+                            <div className="px-6 py-8 text-base text-muted-foreground">
                                 Start typing a name to select a hitter. The
                                 first matching hitter will be shown.
                             </div>
                         ) : (
                             <>
                                 {hasAnySwings === 0 && (
-                                    <div className="px-6 pt-4 pb-2 text-sm text-amber-400/90">
+                                    <div className="px-6 pt-4 pb-2 text-base text-amber-400/90">
                                         No bat speed / swing length tracked for
                                         this hitter in Season {season}. Try a
                                         different season or hitter.
                                     </div>
                                 )}
                                 <div className="w-full h-full overflow-x-auto overflow-y-auto">
-                                    <table className="min-w-full text-left text-xs sm:text-sm">
+                                    <table className="min-w-full text-left text-sm sm:text-base">
                                         <thead className="border-b border-border/80 bg-background/40">
                                             <tr>
                                                 <th className="px-4 py-2 font-medium">
@@ -809,7 +809,7 @@ export function App() {
                                                     key={row.key}
                                                     className="border-b border-border/60 odd:bg-background/10 even:bg-background/5"
                                                 >
-                                                    <td className="px-4 py-2 text-sm font-medium">
+                                                    <td className="px-4 py-2 text-base font-medium">
                                                         {row.label}
                                                     </td>
                                                     <td className="px-4 py-2 tabular-nums">
@@ -1036,7 +1036,7 @@ export function App() {
                         return (
                             <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
                                 <CardHeader className="border-b border-border/80 pb-3">
-                                    <CardTitle className="text-base font-medium">
+                                    <CardTitle className="text-lg font-medium">
                                         League Swing Trends &amp; 2026 ABS
                                         Context
                                     </CardTitle>
