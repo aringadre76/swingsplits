@@ -241,6 +241,76 @@ function InsightsView() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Interesting Trends */}
+            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">Interesting 2026 Trends</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                    <p>
+                        <strong className="text-emerald-400">Shortener Jump in 2026:</strong> 15.3% of hitters are shortening their swing in two-strike counts — up from 3.6% in 2025. The ABS system is reshaping how hitters protect the plate.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Protected K Rate:</strong> 25 players have had Ks avoided via ABS challenges. 6 of 25 are shorteners (the rest are neutral/decembers with longer swings).
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Consistency Wins:</strong> Hitters with consistent approaches across counts (small gap between ahead and two-strike) outperform "range readers" who expand when ahead and collapse when behind. Correlation: -0.09.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Career Shifts:</strong> Top players increasing shortening in 2026 vs career: Ryan Jeffers (+0.35), Nasim Nunez (+0.34), Josh Bell (+0.31). Vladimir Guerrero Jr. has the largest DECREASE (-0.47) and isn't challenging yet.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Year-over-Year:</strong> Pop avg bat speed increased to 69.72 mph in 2026 (up from 69.18 in 2025). Pop avg two-strike bat delta deepened to -0.99 (more deceleration = better for ABS).
+                    </p>
+                </CardContent>
+            </Card>
+
+            <Card className="w-full bg-amber-950/20 border-amber-500/30 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">Key Correlations</CardTitle>
+                </CardHeader>
+                <CardContent className="px-0">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full text-left text-xs">
+                            <thead className="border-b border-border/80 bg-amber-950/20">
+                                <tr>
+                                    <th className="px-4 py-2 font-medium">Metric</th>
+                                    <th className="px-4 py-2 font-medium">Correlation</th>
+                                    <th className="px-4 py-2 font-medium">Interpretation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="border-b border-border/60 bg-emerald-950/10">
+                                    <td className="px-4 py-2">Swing length vs overturn rate</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+0.20</td>
+                                    <td className="px-4 py-2 text-muted-foreground">Longest hitters win 96% vs shortest 82%</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2">Ahead→2s length gap vs tvse</td>
+                                    <td className="px-4 py-2 tabular-nums text-rose-400">-0.09</td>
+                                    <td className="px-4 py-2 text-muted-foreground">Big gaps = worse ABS performance</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2">Discipline score vs tvse</td>
+                                    <td className="px-4 py-2 tabular-nums text-muted-foreground">+0.02</td>
+                                    <td className="px-4 py-2 text-muted-foreground">No strong correlation</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2">Behind→all bat delta vs challenges</td>
+                                    <td className="px-4 py-2 tabular-nums text-muted-foreground">+0.12</td>
+                                    <td className="px-4 py-2 text-muted-foreground">Weak signal</td>
+                                </tr>
+                                <tr>
+                                    <td className="px-4 py-2">Two-strike bat delta vs tvse</td>
+                                    <td className="px-4 py-2 tabular-nums text-muted-foreground">-0.11</td>
+                                    <td className="px-4 py-2 text-muted-foreground">Decelerators do slightly better</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
