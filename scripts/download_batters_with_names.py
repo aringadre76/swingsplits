@@ -5,7 +5,7 @@ import os
 os.makedirs("statcast_data", exist_ok=True)
 cache.enable()
 
-YEARS = [2023, 2024, 2025]
+YEARS = [2023, 2024, 2025, 2026]
 
 for year in YEARS:
     outpath = f"statcast_data/hitters_{year}.csv"
