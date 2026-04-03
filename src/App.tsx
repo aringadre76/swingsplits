@@ -242,6 +242,47 @@ function InsightsView() {
                 </CardContent>
             </Card>
 
+            {/* League Summary */}
+            <Card className="w-full bg-amber-950/20 border-amber-500/30 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">2026 ABS League Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Total Challenges</span>
+                        <span className="font-semibold text-lg">163</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Overturn Rate</span>
+                        <span className="font-semibold text-lg text-emerald-400">52.2%</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">KS Avoided</span>
+                        <span className="font-semibold text-lg">28</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Walks Created</span>
+                        <span className="font-semibold text-lg">10</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Avg tvse</span>
+                        <span className="font-semibold text-lg">+0.02</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Players Tracked</span>
+                        <span className="font-semibold text-lg">123</span>
+                    </div>
+                </CardContent>
+                <CardContent className="pt-0 text-xs text-muted-foreground space-y-2">
+                    <p>
+                        The league-wide overturn rate of 52.2% shows a natural balance - roughly half the challenges succeed. Average player finish is near breakeven (+0.02 tvse) with high volatility (SD: 1.18). The top performers (Herrera +2.82, Carpenter +2.80, Mayo +2.63) are pulling the average up significantly.
+                    </p>
+                    <p>
+                        With 163 challenges through early April, at this pace the league could see ~3,000 challenges by season's end. If 28 Ks are avoided with the current sample (~17 per challenge group), that's ~2,500 Ks potentially avoided league-wide through 2026 ABS.
+                    </p>
+                </CardContent>
+            </Card>
+
             {/* Interesting Trends */}
             <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
                 <CardHeader>
