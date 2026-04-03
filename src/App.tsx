@@ -352,6 +352,106 @@ function InsightsView() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* New 2026 Insights */}
+            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">New 2026 Insights</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                    <p>
+                        <strong className="text-emerald-400">Decelerators Dominate:</strong> 15 players classified as Decelerators (slow bat in 2-strike) have the best ABS profile: +0.91 tvse, 96% overturn rate. Key examples: Judge (-4.1 mph), Altuve (-5.0 mph), Herrera (-2.65 mph).
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Swing Extension Trap:</strong> 9 players classified as "Extenders" (accelerate or lengthen in 2-strike) have mixed results. Only 2/9 positive tvse: Pete Alonso (+1.58) and Ty Gibson (+1.47). Extenders with low tvse: Tristan Peters (-1.41), Nasim Nunez (-0.11).
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Shorteners Win Challenges But Underperform:</strong> 4 players classified as Shorteners have 100% overturn rate but avg tvse of -1.16 — they win the challenges they make but don't challenge enough relative to the model. Cam Smith (-0.22 length delta, -1.70 tvse) is the archetype.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">League-Wide Bat Speed Up:</strong> Average bat speed increased from 69.18 mph (2025) to 69.72 mph (2026). Average two-strike bat delta deepened from -0.69 to -0.99 mph — hitters are consciously slowing their bat more with two strikes.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Cincinnati Team Effect:</strong> 6 players tracked, all winning every challenge, avg tvse +0.79. Could indicate organizational emphasis on challenge selection or just early sample noise.
+                    </p>
+                    <p>
+                        <strong className="text-emerald-400">Power/Unknown is Worst Combo:</strong> Power hitters without established 2-strike approach are struggling: Ronald Acuna Jr. (-1.75), Luis Garcia Jr. (-1.45), Oneil Cruz (-1.58), Austin Wells (-1.86). They need to establish a 2026 approach.
+                    </p>
+                </CardContent>
+            </Card>
+
+            {/* Player Archetype Breakdown */}
+            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">Archetype Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent className="px-0">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full text-left text-xs">
+                            <thead className="border-b border-border/80 bg-background/40">
+                                <tr>
+                                    <th className="px-4 py-2 font-medium">Archetype</th>
+                                    <th className="px-4 py-2 font-medium">Example Players</th>
+                                    <th className="px-4 py-2 font-medium">tvse</th>
+                                    <th className="px-4 py-2 font-medium">Win%</th>
+                                    <th className="px-4 py-2 font-medium">Ks Avoided</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="border-b border-border/60 bg-emerald-950/10">
+                                    <td className="px-4 py-2"><strong>Loopy</strong><br/><span className="text-muted-foreground">Slow bat, long swing</span></td>
+                                    <td className="px-4 py-2">Carpenter, Bell, Ozuna</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+0.85</td>
+                                    <td className="px-4 py-2 tabular-nums">97%</td>
+                                    <td className="px-4 py-2 tabular-nums">7</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2"><strong>Decelerator</strong><br/><span className="text-muted-foreground">Slows bat ≥1 mph in 2-strike</span></td>
+                                    <td className="px-4 py-2">Judge, Altuve, Herrera</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+0.91</td>
+                                    <td className="px-4 py-2 tabular-nums">96%</td>
+                                    <td className="px-4 py-2 tabular-nums">14</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2"><strong>Neutral</strong><br/><span className="text-muted-foreground">Consistent approach</span></td>
+                                    <td className="px-4 py-2">Mayo, Martin, Aranda</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+0.26</td>
+                                    <td className="px-4 py-2 tabular-nums">92%</td>
+                                    <td className="px-4 py-2 tabular-nums">5</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2"><strong>Protector</strong><br/><span className="text-muted-foreground">Slows+shortens in 2-strike</span></td>
+                                    <td className="px-4 py-2">Herrera, Torres, Schwarber</td>
+                                    <td className="px-4 py-2 tabular-nums text-emerald-400">+0.44</td>
+                                    <td className="px-4 py-2 tabular-nums">90%</td>
+                                    <td className="px-4 py-2 tabular-nums">2</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2"><strong>Extender</strong><br/><span className="text-muted-foreground">Accelerates/len in 2-strike</span></td>
+                                    <td className="px-4 py-2">Alonso, Gibson, Tatis</td>
+                                    <td className="px-4 py-2 tabular-nums">+0.38</td>
+                                    <td className="px-4 py-2 tabular-nums">94%</td>
+                                    <td className="px-4 py-2 tabular-nums">1</td>
+                                </tr>
+                                <tr className="border-b border-border/60">
+                                    <td className="px-4 py-2"><strong>Shortener</strong><br/><span className="text-muted-foreground">Shortens without decel</span></td>
+                                    <td className="px-4 py-2">Smith, Rivas, Torkelson</td>
+                                    <td className="px-4 py-2 tabular-nums text-rose-400">-1.16</td>
+                                    <td className="px-4 py-2 tabular-nums">100%</td>
+                                    <td className="px-4 py-2 tabular-nums">0</td>
+                                </tr>
+                                <tr>
+                                    <td className="px-4 py-2"><strong>Whip</strong><br/><span className="text-muted-foreground">Fast bat, short swing</span></td>
+                                    <td className="px-4 py-2">Langford, Wallner, Arias</td>
+                                    <td className="px-4 py-2 tabular-nums text-rose-400">-0.14</td>
+                                    <td className="px-4 py-2 tabular-nums">86%</td>
+                                    <td className="px-4 py-2 tabular-nums">2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
