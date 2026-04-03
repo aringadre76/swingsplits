@@ -286,4 +286,30 @@ Baltimore (5 players, 100% win rate) is notable for having Gunnar Henderson, Pet
 
 ---
 
-*Generated from `data/abs_2026.json` (123 players, 163 batter challenges) and `data/hitter_aggregates.json` (2026 season through April 2). Cross-analysis via `scripts/abs_archetypes.py` and `scripts/run_analysis.py`.*
+---
+
+## 2026 Season Progress Update
+
+**New Players:** Several new faces have emerged in the 2026 ABS landscape:
+- **Austin Martin (MIN):** 2/2 challenges, +1.43 tvse, Contact archetype with Neutral approach
+- **Will Benson (CIN):** 2/2 challenges, +1.61 tvse, Power archetype with Unknown approach
+- **Munetaka Murakami (CWS):** 1/1 challenge, +1.45 tvse - elite first-sample performance
+
+**Team Performance Notes:**
+- **Cincinnati (CIN):** 6 players tracked, all 100% win rate, avg tvse +0.79 - strongest team showing
+- **Baltimore (BAL):** 5 players, 100% win rate, featuring Alonso (+1.58), Mayo (+2.63), Henderson, Cowser, Basallo
+- **New York Yankees (NYY):** 7 players, 86% win rate - mixed results despite high-profile names
+- **Texas Rangers (TEX):** -1.29 avg tvse - struggling with shortener/whip archetype mix
+
+**Key 2026 Developments:**
+- Swing shortening in two-strike counts jumped to 15.3% in 2026 from 3.6% in 2025 - a 4x increase
+- League-wide avg bat speed increased to 69.72 mph from 69.18 in 2025
+- Two-strike bat delta deepened from -0.69 to -0.99 mph - hitters are consciously slowing down more
+
+**Notable Players Expanding Swing in 2026 vs Career:**
+- Ryan Jeffers (+0.35 ft shift, 2/2 ABS, +1.11 tvse) - PD pattern working
+- Colton Cowser (+0.19 ft shift, 1/1 ABS, +0.43 tvse) - BAL power hitting
+- Mike Trout (+0.24 ft shift, 3/4 ABS, +0.48 tvse) - veteran adaptation
+- Pete Alonso (+0.26 ft shift, 2/2 ABS, +1.58 tvse) - swing extension working
+
+*Data updated: April 2, 2026 after latest analysis run. Scripts in `scripts/` can be re-run for current stats.**
