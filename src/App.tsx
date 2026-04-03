@@ -546,6 +546,59 @@ export function App() {
         return parts.join(" · ");
     }, [hitterAbs]);
 
+    const leaguePlayerPct = useMemo((): PlayerPercentile2026 | null => {
+        if (!leagueContext || season !== "2026" || !selectedName) return null;
+        return leagueContext.playerPercentiles2026[selectedName] ?? null;
+    }, [leagueContext, season, selectedName]);
+
+    const leagueContextInsight = useMemo(() => {
+        if (!leaguePlayerPct) return null;
+        const parts: string[] = [];
+
+        const ordinal = (n: number) => {
+            const s = ["th", "st", "nd", "rd"] as const;
+            const v = n % 100;
+            return `${n}${s[(v - 20) % 10] ?? s[v] ?? "th"}`;
+        };
+
+        if (
+            leaguePlayerPct.batSpeed != null &&
+            leaguePlayerPct.batSpeedPct != null &&
+            (leaguePlayerPct.batSpeedSwings ?? 0) >= 30
+        ) {
+            parts.push(
+                `${formatAvg(leaguePlayerPct.batSpeed)} mph bat speed (${ordinal(leaguePlayerPct.batSpeedPct)} among 2026 hitters)`,
+            );
+        }
+
+        if (
+            leaguePlayerPct.tsBatDelta != null &&
+            leaguePlayerPct.tsBatDeltaDecelerationPct != null &&
+            (leaguePlayerPct.tsBatSwings ?? 0) >= 20
+        ) {
+            const dir =
+                leaguePlayerPct.tsBatDelta <= 0 ? "decelerates" : "accelerates";
+            parts.push(
+                `${dir} ${formatSigned(leaguePlayerPct.tsBatDelta)} mph in two-strike counts (${ordinal(leaguePlayerPct.tsBatDeltaDecelerationPct)} most)`,
+            );
+        }
+
+        if (
+            leaguePlayerPct.tsLenDelta != null &&
+            leaguePlayerPct.tsLenDeltaShorteningPct != null &&
+            (leaguePlayerPct.tsLenSwings ?? 0) >= 20
+        ) {
+            const dir =
+                leaguePlayerPct.tsLenDelta <= 0 ? "shortens" : "extends";
+            parts.push(
+                `${dir} ${formatSigned(leaguePlayerPct.tsLenDelta, 2)} ft swing (${ordinal(leaguePlayerPct.tsLenDeltaShorteningPct)} most)`,
+            );
+        }
+
+        if (parts.length === 0) return null;
+        return "League context (2026): " + parts.join(" · ");
+    }, [leaguePlayerPct]);
+
     const careerLabel = meta?.careerLabel ?? "Career";
     const searchTrimmed = debouncedSearch.trim();
     const noMatch = Boolean(
@@ -669,6 +722,11 @@ export function App() {
                                     )}
                                     {seasonVsCareerInsight && (
                                         <div>{seasonVsCareerInsight}</div>
+                                    )}
+                                    {leagueContextInsight && (
+                                        <div className="text-sky-400/90">
+                                            {leagueContextInsight}
+                                        </div>
                                     )}
                                     {absInsight && (
                                         <div className="text-amber-300/90">
@@ -957,6 +1015,311 @@ export function App() {
                         )}
                     </CardContent>
                 </Card>
+
+                {leagueContext &&
+                    (() => {
+                        const trends = leagueContext.leagueTrends;
+                        const ctx26 = leagueContext.league2026;
+                        const abs26 = ctx26.abs;
+                        const trend25 = trends.find((t) => t.year === "2025");
+                        const pctShort26 = ctx26.pctShorteners;
+                        const pctShort25 = trend25?.pctShorteners ?? null;
+                        const shortenerJump =
+                            pctShort26 != null && pctShort25 != null
+                                ? pctShort26 - pctShort25
+                                : null;
+                        const overallPct =
+                            abs26.overallOverturnRate != null
+                                ? Math.round(abs26.overallOverturnRate * 100)
+                                : null;
+
+                        return (
+                            <Card className="w-full bg-card/90 border-border/80 shadow-xl backdrop-blur">
+                                <CardHeader className="border-b border-border/80 pb-3">
+                                    <CardTitle className="text-base font-medium">
+                                        League Swing Trends &amp; 2026 ABS
+                                        Context
+                                    </CardTitle>
+                                    {shortenerJump != null &&
+                                        pctShort26 != null &&
+                                        pctShort25 != null && (
+                                            <CardDescription className="mt-1 text-xs leading-snug">
+                                                <span className="text-amber-300/90 font-medium">
+                                                    {pctShort26.toFixed(1)}% of
+                                                    2026 hitters are shortening
+                                                    their swing in two-strike
+                                                    counts — up{" "}
+                                                    {shortenerJump.toFixed(1)}{" "}
+                                                    pp from{" "}
+                                                    {pctShort25.toFixed(1)}% in
+                                                    2025.
+                                                </span>{" "}
+                                                The ABS challenge system appears
+                                                to already be reshaping how
+                                                hitters protect the plate. Bat
+                                                speed deceleration in two-strike
+                                                counts also increased (avg −
+                                                {Math.abs(
+                                                    ctx26.avgTsBatDelta ?? 0,
+                                                ).toFixed(2)}{" "}
+                                                mph in 2026 vs −
+                                                {Math.abs(
+                                                    trend25?.avgTsBatDelta ?? 0,
+                                                ).toFixed(2)}{" "}
+                                                mph in 2025).
+                                            </CardDescription>
+                                        )}
+                                </CardHeader>
+                                <CardContent className="px-0 pt-0">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full text-left text-xs">
+                                            <thead className="border-b border-border/80 bg-background/40">
+                                                <tr>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        Year
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        Hitters (n)
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        Avg bat speed
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        Avg swing len
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        2-strike bat Δ
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        2-strike len Δ
+                                                    </th>
+                                                    <th className="px-4 py-2 font-medium">
+                                                        % shorteners
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {trends.map((t) => {
+                                                    const is2026 =
+                                                        t.year === "2026";
+                                                    const rowCls = is2026
+                                                        ? "border-b border-border/60 bg-amber-950/20"
+                                                        : "border-b border-border/60 odd:bg-background/10 even:bg-background/5";
+                                                    const shortPct =
+                                                        t.pctShorteners;
+                                                    const prev = trends.find(
+                                                        (x) =>
+                                                            String(
+                                                                Number(x.year) +
+                                                                    1,
+                                                            ) === t.year,
+                                                    );
+                                                    const shortDelta =
+                                                        shortPct != null &&
+                                                        prev?.pctShorteners !=
+                                                            null
+                                                            ? shortPct -
+                                                              prev.pctShorteners
+                                                            : null;
+                                                    return (
+                                                        <tr
+                                                            key={t.year}
+                                                            className={rowCls}
+                                                        >
+                                                            <td
+                                                                className={`px-4 py-2 font-semibold tabular-nums ${is2026 ? "text-amber-300/90" : ""}`}
+                                                            >
+                                                                {t.year}
+                                                            </td>
+                                                            <td className="px-4 py-2 tabular-nums text-muted-foreground">
+                                                                {
+                                                                    t.nQualifyingAllCount
+                                                                }
+                                                            </td>
+                                                            <td className="px-4 py-2 tabular-nums">
+                                                                {t.avgBatSpeed !=
+                                                                null
+                                                                    ? t.avgBatSpeed.toFixed(
+                                                                          1,
+                                                                      )
+                                                                    : "—"}
+                                                            </td>
+                                                            <td className="px-4 py-2 tabular-nums">
+                                                                {t.avgSwingLength !=
+                                                                null
+                                                                    ? t.avgSwingLength.toFixed(
+                                                                          2,
+                                                                      )
+                                                                    : "—"}
+                                                            </td>
+                                                            <td
+                                                                className={`px-4 py-2 tabular-nums ${is2026 ? "text-rose-400" : "text-muted-foreground"}`}
+                                                            >
+                                                                {t.avgTsBatDelta !=
+                                                                null
+                                                                    ? (t.avgTsBatDelta >
+                                                                      0
+                                                                          ? "+"
+                                                                          : "") +
+                                                                      t.avgTsBatDelta.toFixed(
+                                                                          2,
+                                                                      )
+                                                                    : "—"}
+                                                            </td>
+                                                            <td
+                                                                className={`px-4 py-2 tabular-nums ${is2026 ? "text-rose-400" : "text-muted-foreground"}`}
+                                                            >
+                                                                {t.avgTsLenDelta !=
+                                                                null
+                                                                    ? (t.avgTsLenDelta >
+                                                                      0
+                                                                          ? "+"
+                                                                          : "") +
+                                                                      t.avgTsLenDelta.toFixed(
+                                                                          3,
+                                                                      )
+                                                                    : "—"}
+                                                            </td>
+                                                            <td
+                                                                className={`px-4 py-2 tabular-nums ${is2026 ? "text-amber-300/90 font-semibold" : ""}`}
+                                                            >
+                                                                {shortPct !=
+                                                                null ? (
+                                                                    <>
+                                                                        {shortPct.toFixed(
+                                                                            1,
+                                                                        )}
+                                                                        %
+                                                                        {shortDelta !=
+                                                                            null &&
+                                                                            shortDelta >
+                                                                                0 && (
+                                                                                <span className="ml-1 text-emerald-400 text-[10px]">
+                                                                                    +
+                                                                                    {shortDelta.toFixed(
+                                                                                        1,
+                                                                                    )}{" "}
+                                                                                    pp
+                                                                                </span>
+                                                                            )}
+                                                                    </>
+                                                                ) : (
+                                                                    "—"
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="mx-4 mt-3 mb-3 flex flex-col gap-2">
+                                        {/* ABS league summary row */}
+                                        <div className="rounded-md border border-amber-500/20 bg-amber-950/20 px-3 py-2">
+                                            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-300/70">
+                                                2026 ABS Season — League Wide
+                                            </div>
+                                            <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs">
+                                                <span>
+                                                    <span className="text-muted-foreground">
+                                                        Challenges
+                                                    </span>
+                                                    <span className="ml-1 font-medium tabular-nums">
+                                                        {abs26.totalChallenges}
+                                                    </span>
+                                                </span>
+                                                <span>
+                                                    <span className="text-muted-foreground">
+                                                        Overturns
+                                                    </span>
+                                                    <span className="ml-1 font-medium tabular-nums">
+                                                        {abs26.totalOverturns}
+                                                        {overallPct != null && (
+                                                            <span className="ml-0.5 text-amber-300/90">
+                                                                ({overallPct}%)
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </span>
+                                                <span>
+                                                    <span className="text-muted-foreground">
+                                                        Ks avoided
+                                                    </span>
+                                                    <span className="ml-1 font-medium tabular-nums">
+                                                        {abs26.totalKsFlipped}
+                                                    </span>
+                                                </span>
+                                                <span>
+                                                    <span className="text-muted-foreground">
+                                                        Walks created
+                                                    </span>
+                                                    <span className="ml-1 font-medium tabular-nums">
+                                                        {
+                                                            abs26.totalWalksFlipped
+                                                        }
+                                                    </span>
+                                                </span>
+                                                <span>
+                                                    <span className="text-muted-foreground">
+                                                        Players tracked
+                                                    </span>
+                                                    <span className="ml-1 font-medium tabular-nums">
+                                                        {abs26.nPlayersWithData}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Key findings */}
+                                        <div className="rounded-md border border-border/50 bg-background/10 px-3 py-2 text-xs text-muted-foreground space-y-1">
+                                            <div className="font-semibold text-foreground/80 text-[10px] uppercase tracking-wider mb-1">
+                                                Key findings from cross-analysis
+                                            </div>
+                                            <div>
+                                                <span className="text-sky-400/90">
+                                                    Swing discipline ≠ ABS
+                                                    success (r ≈ 0.02).
+                                                </span>{" "}
+                                                How much a hitter shortens or
+                                                slows their swing in two-strike
+                                                counts barely predicts whether
+                                                they win challenges. Knowing
+                                                which borderline pitch to
+                                                challenge matters more than
+                                                approach alone.
+                                            </div>
+                                            <div>
+                                                <span className="text-sky-400/90">
+                                                    Mid-range bat speed wins the
+                                                    most challenges.
+                                                </span>{" "}
+                                                Hitters in the 67–72 mph range
+                                                overturn calls at 92–94%, while
+                                                the fastest swingers (&gt;72
+                                                mph) win only 86% — possibly
+                                                because elite power hitters
+                                                expand their zone on borderline
+                                                takes.
+                                            </div>
+                                            <div>
+                                                <span className="text-sky-400/90">
+                                                    25 Ks already avoided in
+                                                    week 1.
+                                                </span>{" "}
+                                                Strikeout-saving overturns are
+                                                spread across all swing profiles
+                                                — shorteners and aggressive
+                                                hitters alike. At this pace,
+                                                hundreds of Ks could be avoided
+                                                league-wide by season end.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })()}
             </div>
         </div>
     );
